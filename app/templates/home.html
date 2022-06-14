@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<html>
+<title>Cymbal Health - Device Registration</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.5.0/firebase-ui-auth.css" />
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+<style>
+  body,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    font-family: "Raleway", sans-serif
+  }
+</style>
+
+<body class="w3-light-grey">
+  <!-- w3-content defines a container for fixed size centered content,
+and is wrapped around the whole page content, except for the footer in this example -->
+  <div class="w3-content" style="max-width:1400px">
+    <!-- Header -->
+    <header class="w3-container w3-margin">
+      <div class="w3-row">
+        <h1 style="font-weight: 250;
+      color: rgba(23, 15, 95, 1);
+      text-transform: none; font-family: 'Avenir Next World Regular'"><b>Cymbal Health Portal</b></h1>
+        <p>{{user["name"]}} | {{user["email"]}}</p>
+        <form method="GET" action={{url_for("frontend_bp.logout")}}>
+          <input type="submit" value="Logout">
+        </form> <button id="delete_account">Delete Account</button>
+      </div>
+    </header>
+    <div class="w3-margin w3-white card">
+      <div class="w3-container">
+        <h3 style="color:#3c3c3c; font-family: 'Avenir Next World Regular'"><b>Device Registration and Authorization</b>
+        </h3>
+      </div>
+      <div class="w3-container w3-card-4 card">
+        <h4>Fitbit</h4>
+        <p style="color:#3c3c3c; font-family: 'Avenir Next World Regular'">The following link will register you with the
+          application and take you to Fitbit's authorization page where you will be able to complete registration with
+          your Fitbit account</p>
+        <p style="color:#3c3c3c; font-family: 'Avenir Next World Regular'">Please authorize Cymbal Health to access all
+          of your Fitbit data</p>
+        <div class="w3-row">
+          <div class="w3-col m8 s12">
+            {% if not is_fitbit_registered %}
+            <h4>
+              <a id="fitbit_link" type="button" style="color:#3c3c3c; font-family: 'Avenir Next World Regular'" href={{
+                url_for('fitbit.login') }}>Register Fitbit</a>
+            </h4>
+            {% else %}
+            <button class="registered-btn" id="fibit_register">Registered</button> |
+            <a href={{ url_for('fitbit_auth_bp.device_delete') }}>Unregister</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

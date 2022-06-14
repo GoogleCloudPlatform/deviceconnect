@@ -1,0 +1,5 @@
+Sphinx==5.0.1
+sphinx_copybutton
+sphinxcontrib-kroki
+sphinxcontrib-httpdomain
+releases

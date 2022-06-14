@@ -1,0 +1,98 @@
+/*
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+
+
+:root {
+    --small-spacing: 0.5rem;
+    --large-spacing: 1rem;
+    --large-font-size: 3rem;
+    --large-card-size: 250px;
+    --large-image-size: 75%;
+}
+
+@media (min-width: 576px) {
+    :root {
+        --small-spacing: 1rem;
+        --large-spacing: 2rem;
+        --large-font-size: 3rem;
+        --large-card-size: 500px;
+        --large-image-size: 60%;
+    }
+}
+
+.login-text {
+    font-size: var(--large-font-size);
+    color: rgba(23, 15, 95, 1);
+    text-transform: none;
+    font-family: 'Avenir Next World Regular';
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login {
+
+    padding: var(--small-spacing) var(--large-spacing);
+    margin: var(--small-spacing) auto var(--large-spacing);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 25px;
+}
+
+.card {
+    border-radius: 20px;
+}
+
+.input-box {
+    width: var(--large-card-size);
+}
+
+.background-image {
+    background-image: url('../img/device-connect-login.png');
+    background-repeat: no-repeat;
+    background-position: left bottom;
+    background-attachment: fixed;
+    background-size: var(--large-image-size) auto;
+}
+
+.registered-btn {
+    color: green;
+    text-align: center;
+    border: green;
+    padding-bottom: 1rem;
+    background-color: white;
+}
+
+.login-btn {
+    justify-content: center;
+    flex-direction: row;
+    display: flex;
+    background-color: rgb(255, 255, 255);
+    justify-content: center;
+    align-items: center;
+    width: 220px;
+    padding: 10px;
+    box-shadow: 3px 3px 3px rgb(170, 170, 170);
+    border-radius: 15px;
+}
+
+.btn-text {
+    justify-content: center;
+    padding: 10px;
+    font-family: 'Poppins', sans-serif;
+    color: rgb(85, 85, 85);
+}
