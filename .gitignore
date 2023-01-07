@@ -19,3 +19,6 @@ _build
 junit_report.xml
 public
 flask_session
+terraform.tfvars
+.terraform
+.terraform.lock.hcl
