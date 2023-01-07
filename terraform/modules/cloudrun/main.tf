@@ -79,7 +79,7 @@ resource "null_resource" "deploy-cloudrun-image" {
         "--substitutions=",
         join(",", [
           "_PROJECT_ID='${var.project_id}'",
-          "_IMAGE='queue-image'",
+          "_IMAGE='${var.service_name}'",
           "_REGION='${var.region}'",
           "_REPOSITORY=${var.repository_id}"
         ])
@@ -97,7 +97,7 @@ resource "google_cloud_run_service" "webapp" {
   template {
     spec {
         containers {
-          image = "${var.region}-docker.pkg.dev/${var.project_id}/${var.repository_id}/queue-image"
+          image = "${var.region}-docker.pkg.dev/${var.project_id}/${var.repository_id}/${var.service_name}"
           resources {
               limits = {
               "memory" = "1G"
