@@ -108,6 +108,6 @@ module "cloudscheduler" {
   source                = "../../modules/cloudscheduler"
   project_id            = var.project_id
   region                = var.region
-  webapp_base_url       = module.enrollment_webapp.url
+  webapp_base_url       = module.enrollment_webapp.ingest
 }
 

@@ -76,6 +76,7 @@ module "service_accounts" {
     "roles/logging.admin",
     "roles/logging.viewer",
     "roles/run.admin",
+    "roles/run.invoker",
     "roles/secretmanager.secretAccessor",
     "roles/storage.admin",
     "roles/viewer",

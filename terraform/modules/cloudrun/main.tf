@@ -88,11 +88,13 @@ resource "null_resource" "deploy-cloudrun-image" {
   }
 }
 
-# Deploy image to Cloud Run
+#
+# Deploy end-user enrollment webapp
+#
 resource "google_cloud_run_service" "webapp" {
   # provider = google
   project  = var.project_id
-  name     = var.service_name
+  name     = "${var.service_name}-enrollment"
   location = var.region
   template {
     spec {
@@ -111,6 +113,11 @@ resource "google_cloud_run_service" "webapp" {
               value = env.value["value"]
             }
           }
+
+          env {
+            name = "FRONTEND_ONLY"
+            value = true
+          }
         }
     }
     metadata {
@@ -127,9 +134,52 @@ resource "google_cloud_run_service" "webapp" {
     percent = 100
     latest_revision = true
   }
+  depends_on = [null_resource.deploy-cloudrun-image]
+}
 
-  
-
+# Deploy ingestion webapp to Cloud Run
+resource "google_cloud_run_service" "ingest" {
+  # provider = google
+  project  = var.project_id
+  name     = "${var.service_name}-ingestion"
+  location = var.region
+  template {
+    spec {
+        containers {
+          image = "${var.region}-docker.pkg.dev/${var.project_id}/${var.repository_id}/${var.service_name}"
+          resources {
+              limits = {
+              "memory" = "1G"
+              "cpu" = "1"
+              }
+          }
+          dynamic "env" {
+            for_each = var.env_vars
+            content {
+              name  = env.value["name"]
+              value = env.value["value"]
+            }
+          }
+          env {
+            name = "BACKEND_ONLY"
+            value = true
+          }
+        }
+    }
+    metadata {
+        annotations = {
+            "autoscaling.knative.dev/minScale" = "0"
+            "autoscaling.knative.dev/maxScale" = "1"
+        }
+        labels = {
+          goog-packaged-solution = "device-connect-for-fitbit"
+        }
+    }
+  }
+  traffic {
+    percent = 100
+    latest_revision = true
+  }
   depends_on = [null_resource.deploy-cloudrun-image]
 }
 

@@ -99,18 +99,15 @@ variable "fitbit_oauth_client_secret" {
 variable "openid_auth_metadata_url" {
   type	      = string
   description = "see documentation"
-  default     = ""
 }
 
 variable "openid_auth_client_id" {
   type        = string
   description = "see documentation"
-  default     = ""
 }
 
 variable "openid_auth_client_secret" {
   type        = string
   description = "see documentation"
-  default     = ""
 }
 

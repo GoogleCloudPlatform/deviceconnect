@@ -21,6 +21,11 @@ output "url" {
   description = "url for the webapp."
 }
 
+output "ingest" {
+  value       = module.enrollment_webapp.ingest
+  description = "url for the webapp."
+}
+
 output "container" {
   value       = module.enrollment_webapp.container
   description = "container for the webapp."
