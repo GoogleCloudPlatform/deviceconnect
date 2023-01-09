@@ -70,7 +70,7 @@ module "vpc_network" {
   vpc_network = "default-vpc"
   region      = var.region
 
-  depends_on = [ module.project_services ]
+  depends_on = [module.project_services]
 }
 
 # Deploy sample-service to CloudRun
@@ -85,29 +85,31 @@ module "enrollment_webapp" {
   service_name          = "deviceconnect"
   repository_id         = "cloudrun"
   allow_unauthenticated = false
-  env_vars              = [
-                            { name = "FITBIT_OAUTH_CLIENT_ID", value = var.fitbit_oauth_client_id },
-                            { name = "FITBIT_OAUTH_CLIENT_SECRET", value = var.fitbit_oauth_client_secret },
-			                      { name = "OPENID_AUTH_METADATA_URL", value = var.openid_auth_metadata_url },
-			                      { name = "OPENID_AUTH_CLIENT_ID", value = var.openid_auth_client_id },
-		   	                    { name = "OPENID_AUTH_CLIENT_SECRET", value = var.openid_auth_client_secret }
-                          ]
+  bigquery_dataset      = "fitbit"
+  env_vars = [
+    { name = "FITBIT_OAUTH_CLIENT_ID", value = var.fitbit_oauth_client_id },
+    { name = "FITBIT_OAUTH_CLIENT_SECRET", value = var.fitbit_oauth_client_secret },
+    { name = "OPENID_AUTH_METADATA_URL", value = var.openid_auth_metadata_url },
+    { name = "OPENID_AUTH_CLIENT_ID", value = var.openid_auth_client_id },
+    { name = "OPENID_AUTH_CLIENT_SECRET", value = var.openid_auth_client_secret }
+  ]
 }
 
 module "bigquery" {
   depends_on = [module.project_services]
-  
-  source                = "../../modules/bigquery"
-  project_id            = var.project_id
-  region                = var.region
+
+  source           = "../../modules/bigquery"
+  project_id       = var.project_id
+  region           = var.region
+  bigquery_dataset = "fitbit"
 }
 
 module "cloudscheduler" {
-  depends_on = [ module.enrollment_webapp ]
+  depends_on = [module.enrollment_webapp]
 
-  source                = "../../modules/cloudscheduler"
-  project_id            = var.project_id
-  region                = var.region
-  webapp_base_url       = module.enrollment_webapp.ingest
+  source          = "../../modules/cloudscheduler"
+  project_id      = var.project_id
+  region          = var.region
+  webapp_base_url = module.enrollment_webapp.ingest
 }
 

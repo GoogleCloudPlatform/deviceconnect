@@ -18,7 +18,7 @@
 variable "feature_flags" {
   type        = string
   description = "A comma-seperated string of feature flags to enable specific terraform blocks."
-  default = "gke,gke-ingress"
+  default     = "gke,gke-ingress"
 }
 
 variable "env" {
@@ -65,7 +65,7 @@ variable "storage_multiregion" {
 }
 
 variable "admin_email" {
-  type    = string
+  type = string
 }
 
 variable "api_domain" {
@@ -97,7 +97,7 @@ variable "fitbit_oauth_client_secret" {
 }
 
 variable "openid_auth_metadata_url" {
-  type	      = string
+  type        = string
   description = "see documentation"
 }
 

@@ -30,6 +30,11 @@ variable "service_name" {
   description = "CloudRun service name"
 }
 
+variable "bigquery_dataset" {
+  type        = string
+  description = "the bigquery dataset to push data"
+}
+
 variable "source_dir" {
   type        = string
   description = "Source directory of the CloudRun service"

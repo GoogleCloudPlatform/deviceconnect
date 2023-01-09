@@ -37,8 +37,8 @@ module "cloud-scheduler-service-account" {
 }
 
 resource "google_cloud_scheduler_job" "ingest" {
-  project          = var.project_id
-  region           = var.region
+  project = var.project_id
+  region  = var.region
 
   name             = "ingest"
   description      = "test route for ingestion"
@@ -62,8 +62,8 @@ resource "google_cloud_scheduler_job" "ingest" {
 
 
 resource "google_cloud_scheduler_job" "fitbit_activity_pull" {
-  project          = var.project_id
-  region           = var.region
+  project = var.project_id
+  region  = var.region
 
   name             = "fitbit_activity_pull"
   description      = "Pull Fitbit Body Weight Scope"
@@ -86,8 +86,8 @@ resource "google_cloud_scheduler_job" "fitbit_activity_pull" {
 }
 
 resource "google_cloud_scheduler_job" "fitbit_body_weight_pull" {
-  project          = var.project_id
-  region           = var.region
+  project = var.project_id
+  region  = var.region
 
   name             = "fitbit_body_weight_pull"
   description      = "Pull Fitbit Body Weight Scope"
@@ -110,8 +110,8 @@ resource "google_cloud_scheduler_job" "fitbit_body_weight_pull" {
 }
 
 resource "google_cloud_scheduler_job" "fitbit_data_pull" {
-  project          = var.project_id
-  region           = var.region
+  project = var.project_id
+  region  = var.region
 
   name             = "fitbit_data_pull"
   description      = "Pull user Fitbit data"
@@ -134,8 +134,8 @@ resource "google_cloud_scheduler_job" "fitbit_data_pull" {
 }
 
 resource "google_cloud_scheduler_job" "fitbit_heart_rate_pull" {
-  project          = var.project_id
-  region           = var.region
+  project = var.project_id
+  region  = var.region
 
   name             = "fitbit_heart_rate_pull"
   description      = "Pull Fitbit heart rate Scope"
@@ -159,8 +159,8 @@ resource "google_cloud_scheduler_job" "fitbit_heart_rate_pull" {
 
 
 resource "google_cloud_scheduler_job" "fitbit_intraday_pull" {
-  project          = var.project_id
-  region           = var.region
+  project = var.project_id
+  region  = var.region
 
   name             = "fitbit_intraday_pull"
   description      = "Pull Fitbit Intraday Data"
@@ -184,8 +184,8 @@ resource "google_cloud_scheduler_job" "fitbit_intraday_pull" {
 
 
 resource "google_cloud_scheduler_job" "fitbit_nutrition_pull" {
-  project          = var.project_id
-  region           = var.region
+  project = var.project_id
+  region  = var.region
 
   name             = "fitbit_nutrition_pull"
   description      = "Pull Fitbit Nutrition Scope"
@@ -208,8 +208,8 @@ resource "google_cloud_scheduler_job" "fitbit_nutrition_pull" {
 }
 
 resource "google_cloud_scheduler_job" "fitbit_sleep_pull" {
-  project          = var.project_id
-  region           = var.region
+  project = var.project_id
+  region  = var.region
 
   name             = "fitbit_sleep_pull"
   description      = "Pull Fitbit Sleep Pull"

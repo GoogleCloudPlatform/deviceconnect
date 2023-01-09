@@ -16,12 +16,12 @@
  */
 
 resource "google_bigquery_dataset" "fitbit" {
-  project     = var.project_id
-  location    = var.region
+  project  = var.project_id
+  location = var.region
 
-  dataset_id  = "fitbit"
+  dataset_id  = var.bigquery_dataset
   description = "fitbit ingestion tables"
-  
+
   labels = {
     goog-packaged-solution = "device-connect-for-fitbit"
   }

@@ -87,7 +87,7 @@ resource "google_bigquery_dataset_iam_member" "editor" {
 }
 
 resource "null_resource" "deploy-cloudrun-image" {
-  
+
   provisioner "local-exec" {
     working_dir = var.source_dir
     command = join(" ", [
@@ -116,41 +116,41 @@ resource "google_cloud_run_service" "webapp" {
   location = var.region
   template {
     spec {
-        containers {
-          image = "${var.region}-docker.pkg.dev/${var.project_id}/${var.repository_id}/${var.service_name}"
-          resources {
-              limits = {
-              "memory" = "1G"
-              "cpu" = "1"
-              }
-          }
-          dynamic "env" {
-            for_each = var.env_vars
-            content {
-              name  = env.value["name"]
-              value = env.value["value"]
-            }
-          }
-
-          env {
-            name = "FRONTEND_ONLY"
-            value = true
+      containers {
+        image = "${var.region}-docker.pkg.dev/${var.project_id}/${var.repository_id}/${var.service_name}"
+        resources {
+          limits = {
+            "memory" = "1G"
+            "cpu"    = "1"
           }
         }
-        service_account_name = module.cloud-run-service-account.email
+        dynamic "env" {
+          for_each = var.env_vars
+          content {
+            name  = env.value["name"]
+            value = env.value["value"]
+          }
+        }
+
+        env {
+          name  = "FRONTEND_ONLY"
+          value = true
+        }
+      }
+      service_account_name = module.cloud-run-service-account.email
     }
     metadata {
-        annotations = {
-            "autoscaling.knative.dev/minScale" = "0"
-            "autoscaling.knative.dev/maxScale" = "1"
-        }
-        labels = {
-          goog-packaged-solution = "device-connect-for-fitbit"
-        }
+      annotations = {
+        "autoscaling.knative.dev/minScale" = "0"
+        "autoscaling.knative.dev/maxScale" = "1"
+      }
+      labels = {
+        goog-packaged-solution = "device-connect-for-fitbit"
+      }
     }
   }
   traffic {
-    percent = 100
+    percent         = 100
     latest_revision = true
   }
   depends_on = [null_resource.deploy-cloudrun-image]
@@ -164,40 +164,40 @@ resource "google_cloud_run_service" "ingest" {
   location = var.region
   template {
     spec {
-        containers {
-          image = "${var.region}-docker.pkg.dev/${var.project_id}/${var.repository_id}/${var.service_name}"
-          resources {
-              limits = {
-              "memory" = "1G"
-              "cpu" = "1"
-              }
-          }
-          dynamic "env" {
-            for_each = var.env_vars
-            content {
-              name  = env.value["name"]
-              value = env.value["value"]
-            }
-          }
-          env {
-            name = "BACKEND_ONLY"
-            value = true
+      containers {
+        image = "${var.region}-docker.pkg.dev/${var.project_id}/${var.repository_id}/${var.service_name}"
+        resources {
+          limits = {
+            "memory" = "1G"
+            "cpu"    = "1"
           }
         }
-        service_account_name = module.cloud-run-service-account.email
+        dynamic "env" {
+          for_each = var.env_vars
+          content {
+            name  = env.value["name"]
+            value = env.value["value"]
+          }
+        }
+        env {
+          name  = "BACKEND_ONLY"
+          value = true
+        }
+      }
+      service_account_name = module.cloud-run-service-account.email
     }
     metadata {
-        annotations = {
-            "autoscaling.knative.dev/minScale" = "0"
-            "autoscaling.knative.dev/maxScale" = "1"
-        }
-        labels = {
-          goog-packaged-solution = "device-connect-for-fitbit"
-        }
+      annotations = {
+        "autoscaling.knative.dev/minScale" = "0"
+        "autoscaling.knative.dev/maxScale" = "1"
+      }
+      labels = {
+        goog-packaged-solution = "device-connect-for-fitbit"
+      }
     }
   }
   traffic {
-    percent = 100
+    percent         = 100
     latest_revision = true
   }
   depends_on = [null_resource.deploy-cloudrun-image]

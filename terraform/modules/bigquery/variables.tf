@@ -24,3 +24,8 @@ variable "region" {
   type        = string
   description = "GCP region"
 }
+
+variable "bigquery_dataset" {
+  type        = string
+  description = "bigquery dataset to create"
+}
