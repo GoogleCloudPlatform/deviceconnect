@@ -26,21 +26,38 @@ resource "google_artifact_registry_repository" "cloudrun_repository" {
   format        = "DOCKER"
 }
 
-resource "google_cloud_run_service_iam_member" "member" {
+resource "google_cloud_run_service_iam_member" "allusers-enrollment" {
   count    = (var.allow_unauthenticated ? 1 : 0)
   project  = var.project_id
   location = var.region
-  service  = var.service_name
+  service  = "${var.service_name}-enrollment"
   role     = "roles/run.invoker"
   member   = "allUsers"
 
-  depends_on = [time_sleep.wait_for_cloud_run_service]
+  depends_on = [time_sleep.wait_for_enrollment_service]
 }
 
-resource "time_sleep" "wait_for_cloud_run_service" {
+resource "google_cloud_run_service_iam_member" "allusers-ingest" {
+  count    = (var.allow_unauthenticated ? 1 : 0)
+  project  = var.project_id
+  location = var.region
+  service  = "${var.service_name}-ingestion"
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+
+  depends_on = [time_sleep.wait_for_ingest_service]
+}
+
+resource "time_sleep" "wait_for_enrollment_service" {
   create_duration = "30s"
 
   depends_on = [google_cloud_run_service.webapp]
+}
+
+resource "time_sleep" "wait_for_ingest_service" {
+  create_duration = "30s"
+
+  depends_on = [google_cloud_run_service.ingest]
 }
 
 
@@ -119,6 +136,7 @@ resource "google_cloud_run_service" "webapp" {
             value = true
           }
         }
+        service_account_name = module.cloud-run-service-account.email
     }
     metadata {
         annotations = {
@@ -165,6 +183,7 @@ resource "google_cloud_run_service" "ingest" {
             value = true
           }
         }
+        service_account_name = module.cloud-run-service-account.email
     }
     metadata {
         annotations = {
