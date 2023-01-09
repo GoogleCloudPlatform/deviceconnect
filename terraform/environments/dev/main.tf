@@ -84,7 +84,7 @@ module "enrollment_webapp" {
   source_dir            = "../../.."
   service_name          = "deviceconnect"
   repository_id         = "cloudrun"
-  allow_unauthenticated = true
+  allow_unauthenticated = false
   env_vars              = [
                             { name = "FITBIT_OAUTH_CLIENT_ID", value = var.fitbit_oauth_client_id },
                             { name = "FITBIT_OAUTH_CLIENT_SECRET", value = var.fitbit_oauth_client_secret },

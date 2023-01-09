@@ -16,7 +16,49 @@
  */
 
 
+# Creating a custom service account for cloud run
+module "cloud-scheduler-service-account" {
+  source       = "github.com/terraform-google-modules/cloud-foundation-fabric/modules/iam-service-account/"
+  project_id   = var.project_id
+  name         = "cloudscheduler-sa"
+  display_name = "This is service account for cloud scheduler"
 
+  iam = {
+    "roles/iam.serviceAccountUser" = []
+  }
+
+  iam_project_roles = {
+    (var.project_id) = [
+      "roles/iam.serviceAccountUser",
+      "roles/iam.serviceAccountTokenCreator",
+      "roles/run.invoker",
+    ]
+  }
+}
+
+resource "google_cloud_scheduler_job" "ingest" {
+  project          = var.project_id
+  region           = var.region
+
+  name             = "ingest"
+  description      = "test route for ingestion"
+  schedule         = "30 13 * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
+
+  retry_config {
+    retry_count = 1
+  }
+
+  http_target {
+    http_method = "GET"
+    uri         = "${var.webapp_base_url}/ingest"
+
+    oidc_token {
+      service_account_email = module.cloud-scheduler-service-account.email
+    }
+  }
+}
 
 
 resource "google_cloud_scheduler_job" "fitbit_activity_pull" {

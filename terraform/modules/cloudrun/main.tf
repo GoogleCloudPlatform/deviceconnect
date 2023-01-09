@@ -15,9 +15,6 @@
  *
  */
 
-locals {
-  allow_unauthenticated_flag = (var.allow_unauthenticated ? "--allow-unauthenticated" : "")
-}
 
 resource "google_artifact_registry_repository" "cloudrun_repository" {
   location      = var.region
@@ -27,7 +24,6 @@ resource "google_artifact_registry_repository" "cloudrun_repository" {
 }
 
 resource "google_cloud_run_service_iam_member" "allusers-enrollment" {
-  count    = (var.allow_unauthenticated ? 1 : 0)
   project  = var.project_id
   location = var.region
   service  = "${var.service_name}-enrollment"
