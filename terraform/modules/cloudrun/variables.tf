@@ -35,6 +35,11 @@ variable "bigquery_dataset" {
   description = "the bigquery dataset to push data"
 }
 
+variable "firestore_dataset" {
+  type        = string
+  description = "the firestore collection to use for token storage"
+}
+
 variable "source_dir" {
   type        = string
   description = "Source directory of the CloudRun service"

@@ -131,10 +131,17 @@ resource "google_cloud_run_service" "webapp" {
             value = env.value["value"]
           }
         }
-
         env {
           name  = "FRONTEND_ONLY"
           value = true
+        }
+        env {
+          name = "BIGQUERY_DATASET"
+          value = var.bigquery_dataset
+        }
+        env {
+          name = "FIRESTORE_DATASET"
+          value = var.firestore_dataset
         }
       }
       service_account_name = module.cloud-run-service-account.email
@@ -183,6 +190,14 @@ resource "google_cloud_run_service" "ingest" {
           name  = "BACKEND_ONLY"
           value = true
         }
+        env {
+          name = "BIGQUERY_DATASET"
+          value = var.bigquery_dataset
+        }
+        env {
+          name = "FIRESTORE_DATASET"
+          value = var.firestore_dataset
+        }
       }
       service_account_name = module.cloud-run-service-account.email
     }
@@ -202,5 +217,3 @@ resource "google_cloud_run_service" "ingest" {
   }
   depends_on = [null_resource.deploy-cloudrun-image]
 }
-
-

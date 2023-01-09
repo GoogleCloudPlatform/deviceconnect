@@ -45,33 +45,32 @@ resource "google_storage_bucket" "firestore-backup-bucket" {
   }
 }
 
-# main service account to be used by kubernetes pods running the aplpications
-module "firebase_backup_sa" {
-  source       = "terraform-google-modules/service-accounts/google"
-  version      = "~> 3.0"
-  project_id   = var.project_id
-  names        = ["firebase-backup"]
-  display_name = "Firebase backup service account"
-  description  = "Service account for Firestore"
-  project_roles = [for i in [
-    "roles/datastore.owner",
-    "roles/firebase.admin",
-    "roles/logging.admin",
-    "roles/secretmanager.secretAccessor",
-    "roles/storage.admin",
-  ] : "${var.project_id}=>${i}"]
-  generate_keys = false
-}
+# module "firebase_backup_sa" {
+#   source       = "terraform-google-modules/service-accounts/google"
+#   version      = "~> 3.0"
+#   project_id   = var.project_id
+#   names        = ["firebase-backup"]
+#   display_name = "Firebase backup service account"
+#   description  = "Service account for Firestore"
+#   project_roles = [for i in [
+#     "roles/datastore.owner",
+#     "roles/firebase.admin",
+#     "roles/logging.admin",
+#     "roles/secretmanager.secretAccessor",
+#     "roles/storage.admin",
+#   ] : "${var.project_id}=>${i}"]
+#   generate_keys = false
+# }
 
-# give backup SA rights on bucket
-resource "google_storage_bucket_iam_binding" "firestore_sa_backup_binding" {
-  bucket = google_storage_bucket.firestore-backup-bucket.name
-  role   = "roles/storage.admin"
-  members = [
-    "serviceAccount:firebase-backup@${var.project_id}.iam.gserviceaccount.com",
-  ]
-  depends_on = [
-    module.firebase_backup_sa,
-    google_storage_bucket.firestore-backup-bucket
-  ]
-}
+# # give backup SA rights on bucket
+# resource "google_storage_bucket_iam_binding" "firestore_sa_backup_binding" {
+#   bucket = google_storage_bucket.firestore-backup-bucket.name
+#   role   = "roles/storage.admin"
+#   members = [
+#     "serviceAccount:firebase-backup@${var.project_id}.iam.gserviceaccount.com",
+#   ]
+#   depends_on = [
+#     module.firebase_backup_sa,
+#     google_storage_bucket.firestore-backup-bucket
+#   ]
+# }

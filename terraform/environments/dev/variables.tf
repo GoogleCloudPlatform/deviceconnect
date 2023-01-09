@@ -111,3 +111,14 @@ variable "openid_auth_client_secret" {
   description = "see documentation"
 }
 
+variable "bigquery_dataset" {
+  type        = string
+  description = "the name of the bigquery dataset to use"
+  default     = "fitbit"
+}
+
+variable "firestore_dataset" {
+  type        = string
+  description = "firestore collection name to use"
+  default     = "tokens"
+}

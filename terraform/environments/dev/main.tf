@@ -64,19 +64,11 @@ module "firebase" {
   firebase_init    = var.firebase_init
 }
 
-module "vpc_network" {
-  source      = "../../modules/vpc_network"
-  project_id  = var.project_id
-  vpc_network = "default-vpc"
-  region      = var.region
-
-  depends_on = [module.project_services]
-}
 
 # Deploy sample-service to CloudRun
 # Uncomment below to enable deploying microservices with CloudRun.
 module "enrollment_webapp" {
-  depends_on = [module.project_services, module.vpc_network]
+  depends_on = [module.project_services]
 
   source                = "../../modules/cloudrun"
   project_id            = var.project_id
@@ -85,7 +77,8 @@ module "enrollment_webapp" {
   service_name          = "deviceconnect"
   repository_id         = "cloudrun"
   allow_unauthenticated = false
-  bigquery_dataset      = "fitbit"
+  bigquery_dataset      = var.bigquery_dataset
+  firestore_dataset     = var.firestore_dataset
   env_vars = [
     { name = "FITBIT_OAUTH_CLIENT_ID", value = var.fitbit_oauth_client_id },
     { name = "FITBIT_OAUTH_CLIENT_SECRET", value = var.fitbit_oauth_client_secret },
@@ -101,7 +94,7 @@ module "bigquery" {
   source           = "../../modules/bigquery"
   project_id       = var.project_id
   region           = var.region
-  bigquery_dataset = "fitbit"
+  bigquery_dataset = var.bigquery_dataset
 }
 
 module "cloudscheduler" {
