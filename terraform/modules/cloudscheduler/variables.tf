@@ -27,5 +27,5 @@ variable "region" {
 
 variable "webapp_base_url" {
   type        = string
-  description = "base url for the deployed cloudrun webapp"
+  description = "base url for the deployed cloudrun ingestion webapp"
 }

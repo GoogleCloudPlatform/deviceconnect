@@ -42,7 +42,7 @@ resource "google_cloud_scheduler_job" "ingest" {
 
   name             = "ingest"
   description      = "test route for ingestion"
-  schedule         = "30 13 * * *"
+  schedule         = "5 * * * *"
   time_zone        = "America/New_York"
   attempt_deadline = "320s"
 
@@ -78,6 +78,10 @@ resource "google_cloud_scheduler_job" "fitbit_activity_pull" {
   http_target {
     http_method = "GET"
     uri         = "${var.webapp_base_url}/fitbit_activity_scope"
+
+    oidc_token {
+      service_account_email = module.cloud-scheduler-service-account.email
+    }
   }
 }
 
@@ -98,6 +102,10 @@ resource "google_cloud_scheduler_job" "fitbit_body_weight_pull" {
   http_target {
     http_method = "GET"
     uri         = "${var.webapp_base_url}/fitbit_body_weight"
+
+    oidc_token {
+      service_account_email = module.cloud-scheduler-service-account.email
+    }
   }
 }
 
@@ -118,6 +126,10 @@ resource "google_cloud_scheduler_job" "fitbit_data_pull" {
   http_target {
     http_method = "GET"
     uri         = "${var.webapp_base_url}/fitbit_chunk_1"
+
+    oidc_token {
+      service_account_email = module.cloud-scheduler-service-account.email
+    }
   }
 }
 
@@ -138,6 +150,10 @@ resource "google_cloud_scheduler_job" "fitbit_heart_rate_pull" {
   http_target {
     http_method = "GET"
     uri         = "${var.webapp_base_url}/fitbit_heart_rate_scope"
+
+    oidc_token {
+      service_account_email = module.cloud-scheduler-service-account.email
+    }
   }
 }
 
@@ -159,6 +175,10 @@ resource "google_cloud_scheduler_job" "fitbit_intraday_pull" {
   http_target {
     http_method = "GET"
     uri         = "${var.webapp_base_url}/fitbit_intraday_scope"
+
+    oidc_token {
+      service_account_email = module.cloud-scheduler-service-account.email
+    }
   }
 }
 
@@ -180,6 +200,10 @@ resource "google_cloud_scheduler_job" "fitbit_nutrition_pull" {
   http_target {
     http_method = "GET"
     uri         = "${var.webapp_base_url}/fitbit_nutrition_scope"
+
+    oidc_token {
+      service_account_email = module.cloud-scheduler-service-account.email
+    }
   }
 }
 
@@ -200,6 +224,10 @@ resource "google_cloud_scheduler_job" "fitbit_sleep_pull" {
   http_target {
     http_method = "GET"
     uri         = "${var.webapp_base_url}/fitbit_sleep_scope"
+
+    oidc_token {
+      service_account_email = module.cloud-scheduler-service-account.email
+    }
   }
 }
 

@@ -80,6 +80,11 @@ module "cloud-run-service-account" {
     ]
   }
 }
+resource "google_bigquery_dataset_iam_member" "editor" {
+  dataset_id = "fitbit"
+  role       = "roles/bigquery.dataEditor"
+  member     = "serviceAccount:${module.cloud-run-service-account.email}"
+}
 
 resource "null_resource" "deploy-cloudrun-image" {
   
