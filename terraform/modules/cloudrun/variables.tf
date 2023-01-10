@@ -56,6 +56,12 @@ variable "allow_unauthenticated" {
 
 }
 
+variable "web_app_domain" {
+  type        = string
+  description = "Web app domain, excluding protocol, if using domain mapping"
+  default     = ""
+}
+
 variable "env_vars" {
   type = list(object({
     value = string

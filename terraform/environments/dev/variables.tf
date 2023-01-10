@@ -68,16 +68,10 @@ variable "admin_email" {
   type = string
 }
 
-variable "api_domain" {
-  type        = string
-  description = "API endpoint domain, excluding protocol"
-  default     = "localhost"
-}
-
 variable "web_app_domain" {
   type        = string
-  description = "Web app domain, excluding protocol"
-  default     = "localhost:8080"
+  description = "Web app domain, excluding protocol, if using domain mapping"
+  default     = ""
 }
 
 variable "firebase_init" {

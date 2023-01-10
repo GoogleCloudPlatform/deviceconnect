@@ -163,6 +163,22 @@ resource "google_cloud_run_service" "webapp" {
   depends_on = [null_resource.deploy-cloudrun-image]
 }
 
+data "google_project" "project" {}
+
+resource "google_cloud_run_domain_mapping" "webapp" {
+  count = "${var.web_app_domain != "" ? 1 : 0}"
+
+  name     = var.web_app_domain
+  location = google_cloud_run_service.webapp.location
+  metadata {
+    namespace = data.google_project.project.project_id
+  }
+  spec {
+    route_name = google_cloud_run_service.webapp.name
+  }
+}
+
+
 # Deploy ingestion webapp to Cloud Run
 resource "google_cloud_run_service" "ingest" {
   # provider = google
