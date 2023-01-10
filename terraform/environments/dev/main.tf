@@ -76,7 +76,7 @@ module "enrollment_webapp" {
   source_dir            = "../../.."
   service_name          = "deviceconnect"
   repository_id         = "cloudrun"
-  allow_unauthenticated = false
+  allow_unauthenticated = true
   web_app_domain        = var.web_app_domain
   bigquery_dataset      = var.bigquery_dataset
   firestore_dataset     = var.firestore_dataset

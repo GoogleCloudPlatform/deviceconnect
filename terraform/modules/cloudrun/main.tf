@@ -77,14 +77,12 @@ module "cloud-run-service-account" {
       "roles/iam.serviceAccountTokenCreator",
       "roles/run.invoker",
       "roles/pubsub.serviceAgent",
+      "roles/bigquery.dataEditor",
+      "roles/bigquery.user"
     ]
   }
 }
-resource "google_bigquery_dataset_iam_member" "editor" {
-  dataset_id = "fitbit"
-  role       = "roles/bigquery.dataEditor"
-  member     = "serviceAccount:${module.cloud-run-service-account.email}"
-}
+
 
 resource "null_resource" "deploy-cloudrun-image" {
 
