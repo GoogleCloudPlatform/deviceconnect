@@ -3,7 +3,7 @@
   :width: 100%
   :alt: youtube link
   :align: center
-  :target: 
+  :target: https://www.youtube.com/embed/OFCKEXGSE3A
 
 `Device Connect for Fitbit`_ uses Google Cloud and `Fitbit web apis`_ to enable
 developers to build clinical health applications that leverage data from users'
