@@ -14,11 +14,13 @@ flask-login
 werkzeug
 
 firebase-admin
-google-cloud-bigquery
-google-cloud-datastore
-google-cloud-secret-manager
-google-cloud-storage
-google-cloud-firestore
+google-api-core==2.10.1
+google-api-python-client==2.63.0
+google-cloud-bigquery==3.4.1
+google-cloud-datastore==2.8.1
+google-cloud-secret-manager==2.12.4
+google-cloud-storage==2.5.0
+google-cloud-firestore==2.7.0
 
 parse
 skimpy
