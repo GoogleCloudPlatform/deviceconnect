@@ -1,10 +1,9 @@
-.. raw:: html
 
-    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
-        <iframe src="https://www.youtube.com/embed/OFCKEXGSE3A" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
-    </div>
-
-
+.. image:: docs/source/_static/youtube.png
+  :width: 100%
+  :alt: youtube link
+  :align: center
+  :target: 
 
 `Device Connect for Fitbit`_ uses Google Cloud and `Fitbit web apis`_ to enable
 developers to build clinical health applications that leverage data from users'
@@ -39,14 +38,14 @@ Here are some dashboard views that might be valuable:
     has been enriched with the date of a past surgury.  It shows the percent of time she is
     wearing the Fitbit device, along with overall statistics.
 
-    .. image:: _static/user_overview.png
+    .. image:: docs/source/_static/user_overview.png
       :width: 90%
       :alt: user steps dashboard
       :align: center
 
   * Furter details about steps can also identify potential problems to recovery.
 
-    .. image:: _static/user_steps.png
+    .. image:: docs/source/_static/user_steps.png
       :width: 90%
       :alt: user steps dashboard
       :align: center
@@ -54,14 +53,14 @@ Here are some dashboard views that might be valuable:
   * and more details about types and range of activity show more details for the 
     clincial teams:
 
-    .. image:: _static/user_activity_zones.png
+    .. image:: docs/source/_static/user_activity_zones.png
       :width: 90%
       :alt: user steps dashboard
       :align: center
 
   * or more details on sleep:
 
-     .. image:: _static/user_sleep.png
+     .. image:: docs/source/_static/user_sleep.png
       :width: 90%
       :alt: user steps dashboard
       :align: center
