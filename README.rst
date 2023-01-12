@@ -1,3 +1,4 @@
+.. raw:: html
 
 .. image:: docs/source/_static/youtube.png
   :width: 100%
