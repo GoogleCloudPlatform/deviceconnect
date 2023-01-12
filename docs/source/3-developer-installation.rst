@@ -117,3 +117,85 @@ This will upload the source material to gcp and use the `Dockerfile` to build an
 register the container in gcr.  Once built, you can run it using regular docker
 commands or with CloudRun.
 
+Deploy on CloudRun
+==================
+
+Create a new GCP project or use an existing project and using the cloud console,
+navigate to the CloudRun console.
+
+.. image:: _static/cloudrun-1.png
+  :width: 600
+  :alt: go to `console.cloud.google.com` and navigate to the Cloud Run service.
+
+We setup a service that is continuously deployed from a source repository.  To
+do this, you will need to link your Github or Bitbucket accounts.
+
+.. image:: _static/cloudrun-2.png
+  :width: 600
+  :alt: create a new service from a source repository.
+
+Select your Github repository, the one you forked up above.
+
+.. image:: _static/cloudrun-3.png
+  :width: 600
+  :alt: select your github repo.
+
+Use branch `main`, and select the `Dockerfile` option.  The repo has a custom
+dockerfile that builds the container.  You may see some alerts to activate
+CloudBuild or other services that CloudRun depends on.  Go ahead and enable
+those as well.
+
+.. image:: _static/cloudrun-4.png
+  :width: 600
+  :alt: select the repo options.
+
+Set the service connectivity options to allow unauthenticated use, and
+allow all traffic to the service.  CloudRun will create the SSL termination
+and load balancers as required.
+
+.. image:: _static/cloudrun-5.png
+  :width: 200
+  :alt: select service connectivity options.
+
+Next, set up the environment variables for the application to use, including
+the Fitbit client ids and application configurations.  See :any:`configuration`
+for detailed list of variables and their meaning.
+
+.. image:: _static/cloudrun-6.png
+  :width: 200
+  :alt: set environment parameters.
+
+In addition, add the openid connect variables that you obtained above:
+
+* OPENID_AUTH_METADATA_URL
+* OPENID_AUTH_CLIENT_ID
+* OPENID_AUTH_CLIENT_SECRET
+
+Finally, hit the start button and let CloudRun build the container and deploy
+the application
+
+.. image:: _static/cloudrun-7.png
+  :width: 50
+  :alt: select the repo options.
+
+Set OpenID Redirect URI
+-----------------------
+
+Note the URL of the CloudRun service.  It will be something like
+`https://deviceconnect-xxxxxxxxxxx.run.app`.  The corresponding openid
+redirect URI is:
+
+    `https://deviceconnect-xxxxxxxxxxx.run.app/redirect`
+
+Go back to the application page and add this setting to the `redirect_uri`.
+
+Set Fitbit Redirect URI
+-----------------------
+
+Similarly, the Fitbit application needs to be configured with its own
+redirect uri.  Go back to `http://dev.fitbit.com`, edit your application
+and add the following to the redirect uri:
+
+    `https://deviceconnect-xxxxxxxxxxx.run.app/services/fitbit/authorized`
+
+
