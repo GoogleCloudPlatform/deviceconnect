@@ -23,9 +23,6 @@ Routes:
 
     /ingest: test route to test if the blueprint is correctly registered
 
-    /update_tokens: will refresh all fitbit tokens to ensure they are valid
-        when being used.
-
     /fitbit_chunk_1: Badges, Social, Device information
 
     /fitbit_body_weight: body and weight data
@@ -37,6 +34,10 @@ Routes:
     /fitbit_intraday_scope: includes intraday heartrate and steps
 
     /fitbit_sleep_scope:  sleep data
+
+    /fitbit_activity_scope: activity data
+
+    /fitbit_spo2_scope: spo2 data
 
 Dependencies:
 
@@ -57,7 +58,6 @@ Notes:
 
     all the data is ingested into BigQuery tables.
 
-    there is currently no protection for these routes.
 
 """
 
@@ -2445,3 +2445,116 @@ def fitbit_sleep_scope():
     fitbit_bp.storage.user = None
 
     return "Sleep Scope Loaded"
+
+
+#
+# SPO2
+#
+@bp.route("/fitbit_spo2_scope")
+def fitbit_spo2_scope():
+    start = timeit.default_timer()
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
+    # if caller provided date as query params, use that otherwise use yesterday
+    date_pulled = request.args.get("date", _date_pulled())
+    user_list = fitbit_bp.storage.all_users()
+    if request.args.get("user") in user_list:
+        user_list = [request.args.get("user")]
+
+    pd.set_option("display.max_columns", 500)
+
+    spo2_list = []
+
+    for user in user_list:
+
+        log.debug("user: %s", user)
+
+        fitbit_bp.storage.user = user
+
+        if fitbit_bp.session.token:
+            del fitbit_bp.session.token
+
+        try:
+
+            resp = fitbit.get(f"/1/user/-/spo2/date/{date_pulled}.json")
+
+            log.debug("%s: %d [%s]", resp.url, resp.status_code, resp.reason)
+
+            spo2 = resp.json()["value"]
+            spo2_df = pd.json_normalize(spo2)
+
+            spo2_columns = [
+                "avg",
+                "min",
+                "max",
+            ]
+
+            # Fill missing columns
+            spo2_df = _normalize_response(
+                spo2_df, spo2_columns, user, date_pulled
+            )
+
+            # Append dfs to df list
+            spo2_list.append(spo2_df)
+
+        except (Exception) as e:
+            log.error("spo2 exception occured: %s", str(e))
+
+    # end loop over users
+
+    fitbit_stop = timeit.default_timer()
+    fitbit_execution_time = fitbit_stop - start
+    print("spo2 Scope: " + str(fitbit_execution_time))
+
+    if len(spo2_list) > 0:
+
+        try:
+
+            bulk_spo2_df = pd.concat(spo2_list, axis=0)
+
+            pandas_gbq.to_gbq(
+                dataframe=bulk_spo2_df,
+                destination_table=_tablename("spo2"),
+                project_id=project_id,
+                if_exists="append",
+                table_schema=[
+                    {
+                        "name": "id",
+                        "type": "STRING",
+                        "mode": "REQUIRED",
+                        "description": "Primary Key",
+                    },
+                    {
+                        "name": "date",
+                        "type": "DATE",
+                        "mode": "REQUIRED",
+                        "description": "The date values were extracted",
+                    },
+                    {
+                        "name": "avg",
+                        "type": "FLOAT",
+                        "description": "The mean of the 1 minute SpO2 levels calculated as a percentage value.",
+                    },
+                    {
+                        "name": "min",
+                        "type": "FLOAT",
+                        "description": "The minimum daily SpO2 level calculated as a percentage value.",
+                    },
+                    {
+                        "name": "max",
+                        "type": "FLOAT",
+                        "description": "The maximum daily SpO2 level calculated as a percentage value.",
+                    },
+                ],
+            )
+
+        except (Exception) as e:
+            log.error("spo2 exception occured: %s", str(e))
+
+    
+    stop = timeit.default_timer()
+    execution_time = stop - start
+    print("spo2 Scope Loaded: " + str(execution_time))
+
+    fitbit_bp.storage.user = None
+
+    return "sp02 Scope Loaded"
