@@ -231,4 +231,76 @@ resource "google_cloud_scheduler_job" "fitbit_sleep_pull" {
   }
 }
 
+resource "google_cloud_scheduler_job" "fitbit_spo2_pull" {
+  project = var.project_id
+  region  = var.region
+
+  name             = "fitbit_spo2_pull"
+  description      = "Pull Fitbit spo2"
+  schedule         = "05 14 * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
+
+  retry_config {
+    retry_count = 1
+  }
+
+  http_target {
+    http_method = "GET"
+    uri         = "${var.webapp_base_url}/fitbit_spo2_scope"
+
+    oidc_token {
+      service_account_email = module.cloud-scheduler-service-account.email
+    }
+  }
+}
+
+resource "google_cloud_scheduler_job" "fitbit_spo2_intraday_pull" {
+  project = var.project_id
+  region  = var.region
+
+  name             = "fitbit_spo2_intraday_pull"
+  description      = "Pull Fitbit spo2 intraday"
+  schedule         = "10 14 * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
+
+  retry_config {
+    retry_count = 1
+  }
+
+  http_target {
+    http_method = "GET"
+    uri         = "${var.webapp_base_url}/fitbit_spo2_intraday_scope"
+
+    oidc_token {
+      service_account_email = module.cloud-scheduler-service-account.email
+    }
+  }
+}
+
+resource "google_cloud_scheduler_job" "fitbit_skintemp_pull" {
+  project = var.project_id
+  region  = var.region
+
+  name             = "fitbit_skintemp_pull"
+  description      = "Pull Fitbit skintemp"
+  schedule         = "15 14 * * *"
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
+
+  retry_config {
+    retry_count = 1
+  }
+
+  http_target {
+    http_method = "GET"
+    uri         = "${var.webapp_base_url}/fitbit_temp_scope"
+
+    oidc_token {
+      service_account_email = module.cloud-scheduler-service-account.email
+    }
+  }
+}
+
 

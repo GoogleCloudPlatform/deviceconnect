@@ -23,9 +23,6 @@ Routes:
 
     /ingest: test route to test if the blueprint is correctly registered
 
-    /update_tokens: will refresh all fitbit tokens to ensure they are valid
-        when being used.
-
     /fitbit_chunk_1: Badges, Social, Device information
 
     /fitbit_body_weight: body and weight data
@@ -37,6 +34,10 @@ Routes:
     /fitbit_intraday_scope: includes intraday heartrate and steps
 
     /fitbit_sleep_scope:  sleep data
+
+    /fitbit_activity_scope: activity data
+
+    /fitbit_spo2_scope: spo2 data
 
 Dependencies:
 
@@ -57,7 +58,6 @@ Notes:
 
     all the data is ingested into BigQuery tables.
 
-    there is currently no protection for these routes.
 
 """
 
@@ -2445,3 +2445,335 @@ def fitbit_sleep_scope():
     fitbit_bp.storage.user = None
 
     return "Sleep Scope Loaded"
+
+
+#
+# SPO2
+#
+@bp.route("/fitbit_spo2_scope")
+def fitbit_spo2_scope():
+    start = timeit.default_timer()
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
+    # if caller provided date as query params, use that otherwise use yesterday
+    date_pulled = request.args.get("date", _date_pulled())
+    user_list = fitbit_bp.storage.all_users()
+    if request.args.get("user") in user_list:
+        user_list = [request.args.get("user")]
+
+    pd.set_option("display.max_columns", 500)
+
+    spo2_list = []
+
+    for user in user_list:
+
+        log.debug("user: %s", user)
+
+        fitbit_bp.storage.user = user
+
+        if fitbit_bp.session.token:
+            del fitbit_bp.session.token
+
+        try:
+
+            resp = fitbit.get(f"/1/user/-/spo2/date/{date_pulled}.json")
+
+            log.debug("%s: %d [%s]", resp.url, resp.status_code, resp.reason)
+
+            spo2 = resp.json()["value"]
+            spo2_df = pd.json_normalize(spo2)
+
+            spo2_columns = [
+                "avg",
+                "min",
+                "max",
+            ]
+
+            # Fill missing columns
+            spo2_df = _normalize_response(
+                spo2_df, spo2_columns, user, date_pulled
+            )
+
+            # Append dfs to df list
+            spo2_list.append(spo2_df)
+
+        except (Exception) as e:
+            log.error("spo2 exception occured: %s", str(e))
+
+    # end loop over users
+
+    fitbit_stop = timeit.default_timer()
+    fitbit_execution_time = fitbit_stop - start
+    print("spo2 Scope: " + str(fitbit_execution_time))
+
+    if len(spo2_list) > 0:
+
+        try:
+
+            bulk_spo2_df = pd.concat(spo2_list, axis=0)
+
+            pandas_gbq.to_gbq(
+                dataframe=bulk_spo2_df,
+                destination_table=_tablename("spo2"),
+                project_id=project_id,
+                if_exists="append",
+                table_schema=[
+                    {
+                        "name": "id",
+                        "type": "STRING",
+                        "mode": "REQUIRED",
+                        "description": "Primary Key",
+                    },
+                    {
+                        "name": "date",
+                        "type": "DATE",
+                        "mode": "REQUIRED",
+                        "description": "The date values were extracted",
+                    },
+                    {
+                        "name": "avg",
+                        "type": "FLOAT",
+                        "description": "The mean of the 1 minute SpO2 levels calculated as a percentage value.",
+                    },
+                    {
+                        "name": "min",
+                        "type": "FLOAT",
+                        "description": "The minimum daily SpO2 level calculated as a percentage value.",
+                    },
+                    {
+                        "name": "max",
+                        "type": "FLOAT",
+                        "description": "The maximum daily SpO2 level calculated as a percentage value.",
+                    },
+                ],
+            )
+
+        except (Exception) as e:
+            log.error("spo2 exception occured: %s", str(e))
+
+    
+    stop = timeit.default_timer()
+    execution_time = stop - start
+    print("spo2 Scope Loaded: " + str(execution_time))
+
+    fitbit_bp.storage.user = None
+
+    return "sp02 Scope Loaded"
+
+#
+# SPO2 intraday
+#
+@bp.route("/fitbit_spo2_intraday_scope")
+def fitbit_spo2_intraday_scope():
+    start = timeit.default_timer()
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
+    # if caller provided date as query params, use that otherwise use yesterday
+    date_pulled = request.args.get("date", _date_pulled())
+    user_list = fitbit_bp.storage.all_users()
+    if request.args.get("user") in user_list:
+        user_list = [request.args.get("user")]
+
+    pd.set_option("display.max_columns", 500)
+
+    spo2_list = []
+
+    for user in user_list:
+
+        log.debug("user: %s", user)
+
+        fitbit_bp.storage.user = user
+
+        if fitbit_bp.session.token:
+            del fitbit_bp.session.token
+
+        try:
+
+            resp = fitbit.get(f"/1/user/-/spo2/date/{date_pulled}/all.json")
+
+            log.debug("%s: %d [%s]", resp.url, resp.status_code, resp.reason)
+
+            spo2 = resp.json()["minutes"]
+            spo2_df = pd.json_normalize(spo2)
+
+            spo2_columns = [
+                "value",
+                "minute"
+            ]
+
+            # Fill missing columns
+            spo2_df = _normalize_response(
+                spo2_df, spo2_columns, user, date_pulled
+            )
+
+            # Append dfs to df list
+            spo2_list.append(spo2_df)
+
+        except (Exception) as e:
+            log.error("spo2 exception occured: %s", str(e))
+
+    # end loop over users
+
+    fitbit_stop = timeit.default_timer()
+    fitbit_execution_time = fitbit_stop - start
+    print("spo2 Scope: " + str(fitbit_execution_time))
+
+    if len(spo2_list) > 0:
+
+        try:
+
+            bulk_spo2_df = pd.concat(spo2_list, axis=0)
+
+            pandas_gbq.to_gbq(
+                dataframe=bulk_spo2_df,
+                destination_table=_tablename("spo2_intraday"),
+                project_id=project_id,
+                if_exists="append",
+                table_schema=[
+                    {
+                        "name": "id",
+                        "type": "STRING",
+                        "mode": "REQUIRED",
+                        "description": "Primary Key",
+                    },
+                    {
+                        "name": "date",
+                        "type": "DATE",
+                        "mode": "REQUIRED",
+                        "description": "The date values were extracted",
+                    },
+                    {
+                        "name": "value",
+                        "type": "FLOAT",
+                        "description": "The percentage value of SpO2 calculated at a specific date and time in a single day.",
+                    },
+                    {
+                        "name": "minute",
+                        "type": "DATETIME",
+                        "description": "The date and time at which the SpO2 measurement was taken.",
+                    }
+                ],
+            )
+
+        except (Exception) as e:
+            log.error("spo2 exception occured: %s", str(e))
+
+    
+    stop = timeit.default_timer()
+    execution_time = stop - start
+    print("spo2 Scope Loaded: " + str(execution_time))
+
+    fitbit_bp.storage.user = None
+
+    return "sp02 Scope Loaded"
+
+
+#
+# skin temp
+#
+@bp.route("/fitbit_temp_scope")
+def fitbit_temp_scope():
+    start = timeit.default_timer()
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
+    # if caller provided date as query params, use that otherwise use yesterday
+    date_pulled = request.args.get("date", _date_pulled())
+    user_list = fitbit_bp.storage.all_users()
+    if request.args.get("user") in user_list:
+        user_list = [request.args.get("user")]
+
+    pd.set_option("display.max_columns", 500)
+
+    temp_list = []
+
+    for user in user_list:
+
+        log.debug("user: %s", user)
+
+        fitbit_bp.storage.user = user
+
+        if fitbit_bp.session.token:
+            del fitbit_bp.session.token
+
+        try:
+            resp = fitbit.get(f"/1/user/-/temp/skin/date/{date_pulled}.json")
+
+            log.debug("%s: %d [%s]", resp.url, resp.status_code, resp.reason)
+
+            temp = resp.json()["tempSkin"]
+            temp_df = pd.json_normalize(temp)
+
+            temp_columns = [
+                "dateTime",
+                "logType",
+                "value.nightlyRelative"
+            ]
+
+            # Fill missing columns
+            temp_df = _normalize_response(
+                temp_df, temp_columns, user, date_pulled
+            )
+
+            # Append dfs to df list
+            temp_list.append(temp_df)
+
+        except (Exception) as e:
+            log.error("temp exception occured: %s", str(e))
+
+    # end loop over users
+
+    fitbit_stop = timeit.default_timer()
+    fitbit_execution_time = fitbit_stop - start
+    print("temp Scope: " + str(fitbit_execution_time))
+
+    if len(temp_list) > 0:
+
+        try:
+
+            bulk_temp_df = pd.concat(temp_list, axis=0)
+
+            pandas_gbq.to_gbq(
+                dataframe=bulk_temp_df,
+                destination_table=_tablename("skintemp"),
+                project_id=project_id,
+                if_exists="append",
+                table_schema=[
+                    {
+                        "name": "id",
+                        "type": "STRING",
+                        "mode": "REQUIRED",
+                        "description": "Primary Key",
+                    },
+                    {
+                        "name": "date",
+                        "type": "DATE",
+                        "mode": "REQUIRED",
+                        "description": "The date values were extracted",
+                    },
+                    {
+                        "name": "dateTime",
+                        "type": "DATE",
+                        "mode": "REQUIRED",
+                        "description": "the date of the measurements",
+                    },
+                    {
+                        "name": "logType",
+                        "type": "FLOAT",
+                        "description": "The type of skin temperature log created",
+                    },
+                    {
+                        "name": "value.nightlyRelative",
+                        "type": "FLOAT",
+                        "description": "The user's average temperature during a period of sleep.",
+                    },
+                ],
+            )
+
+        except (Exception) as e:
+            log.error("temp exception occured: %s", str(e))
+
+    
+    stop = timeit.default_timer()
+    execution_time = stop - start
+    print("temp Scope Loaded: " + str(execution_time))
+
+    fitbit_bp.storage.user = None
+
+    return "temp Scope Loaded"
