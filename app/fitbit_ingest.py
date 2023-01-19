@@ -2559,6 +2559,112 @@ def fitbit_spo2_scope():
 
     return "sp02 Scope Loaded"
 
+#
+# SPO2 intraday
+#
+@bp.route("/fitbit_spo2_intraday_scope")
+def fitbit_spo2_intraday_scope():
+    start = timeit.default_timer()
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
+    # if caller provided date as query params, use that otherwise use yesterday
+    date_pulled = request.args.get("date", _date_pulled())
+    user_list = fitbit_bp.storage.all_users()
+    if request.args.get("user") in user_list:
+        user_list = [request.args.get("user")]
+
+    pd.set_option("display.max_columns", 500)
+
+    spo2_list = []
+
+    for user in user_list:
+
+        log.debug("user: %s", user)
+
+        fitbit_bp.storage.user = user
+
+        if fitbit_bp.session.token:
+            del fitbit_bp.session.token
+
+        try:
+
+            resp = fitbit.get(f"/1/user/-/spo2/date/{date_pulled}/all.json")
+
+            log.debug("%s: %d [%s]", resp.url, resp.status_code, resp.reason)
+
+            spo2 = resp.json()["minutes"]
+            spo2_df = pd.json_normalize(spo2)
+
+            spo2_columns = [
+                "value",
+                "minute"
+            ]
+
+            # Fill missing columns
+            spo2_df = _normalize_response(
+                spo2_df, spo2_columns, user, date_pulled
+            )
+
+            # Append dfs to df list
+            spo2_list.append(spo2_df)
+
+        except (Exception) as e:
+            log.error("spo2 exception occured: %s", str(e))
+
+    # end loop over users
+
+    fitbit_stop = timeit.default_timer()
+    fitbit_execution_time = fitbit_stop - start
+    print("spo2 Scope: " + str(fitbit_execution_time))
+
+    if len(spo2_list) > 0:
+
+        try:
+
+            bulk_spo2_df = pd.concat(spo2_list, axis=0)
+
+            pandas_gbq.to_gbq(
+                dataframe=bulk_spo2_df,
+                destination_table=_tablename("spo2_intraday"),
+                project_id=project_id,
+                if_exists="append",
+                table_schema=[
+                    {
+                        "name": "id",
+                        "type": "STRING",
+                        "mode": "REQUIRED",
+                        "description": "Primary Key",
+                    },
+                    {
+                        "name": "date",
+                        "type": "DATE",
+                        "mode": "REQUIRED",
+                        "description": "The date values were extracted",
+                    },
+                    {
+                        "name": "value",
+                        "type": "FLOAT",
+                        "description": "The percentage value of SpO2 calculated at a specific date and time in a single day.",
+                    },
+                    {
+                        "name": "minute",
+                        "type": "DATETIME",
+                        "description": "The date and time at which the SpO2 measurement was taken.",
+                    }
+                ],
+            )
+
+        except (Exception) as e:
+            log.error("spo2 exception occured: %s", str(e))
+
+    
+    stop = timeit.default_timer()
+    execution_time = stop - start
+    print("spo2 Scope Loaded: " + str(execution_time))
+
+    fitbit_bp.storage.user = None
+
+    return "sp02 Scope Loaded"
+
 
 #
 # skin temp
