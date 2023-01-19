@@ -2558,3 +2558,116 @@ def fitbit_spo2_scope():
     fitbit_bp.storage.user = None
 
     return "sp02 Scope Loaded"
+
+
+#
+# skin temp
+#
+@bp.route("/fitbit_temp_scope")
+def fitbit_temp_scope():
+    start = timeit.default_timer()
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
+    # if caller provided date as query params, use that otherwise use yesterday
+    date_pulled = request.args.get("date", _date_pulled())
+    user_list = fitbit_bp.storage.all_users()
+    if request.args.get("user") in user_list:
+        user_list = [request.args.get("user")]
+
+    pd.set_option("display.max_columns", 500)
+
+    temp_list = []
+
+    for user in user_list:
+
+        log.debug("user: %s", user)
+
+        fitbit_bp.storage.user = user
+
+        if fitbit_bp.session.token:
+            del fitbit_bp.session.token
+
+        try:
+            resp = fitbit.get(f"/1/user/-/temp/skin/date/{date_pulled}.json")
+
+            log.debug("%s: %d [%s]", resp.url, resp.status_code, resp.reason)
+
+            temp = resp.json()["tempSkin"]
+            temp_df = pd.json_normalize(temp)
+
+            temp_columns = [
+                "dateTime",
+                "logType",
+                "value.nightlyRelative"
+            ]
+
+            # Fill missing columns
+            temp_df = _normalize_response(
+                temp_df, temp_columns, user, date_pulled
+            )
+
+            # Append dfs to df list
+            temp_list.append(temp_df)
+
+        except (Exception) as e:
+            log.error("temp exception occured: %s", str(e))
+
+    # end loop over users
+
+    fitbit_stop = timeit.default_timer()
+    fitbit_execution_time = fitbit_stop - start
+    print("temp Scope: " + str(fitbit_execution_time))
+
+    if len(temp_list) > 0:
+
+        try:
+
+            bulk_temp_df = pd.concat(temp_list, axis=0)
+
+            pandas_gbq.to_gbq(
+                dataframe=bulk_temp_df,
+                destination_table=_tablename("skintemp"),
+                project_id=project_id,
+                if_exists="append",
+                table_schema=[
+                    {
+                        "name": "id",
+                        "type": "STRING",
+                        "mode": "REQUIRED",
+                        "description": "Primary Key",
+                    },
+                    {
+                        "name": "date",
+                        "type": "DATE",
+                        "mode": "REQUIRED",
+                        "description": "The date values were extracted",
+                    },
+                    {
+                        "name": "dateTime",
+                        "type": "DATE",
+                        "mode": "REQUIRED",
+                        "description": "the date of the measurements",
+                    },
+                    {
+                        "name": "logType",
+                        "type": "FLOAT",
+                        "description": "The type of skin temperature log created",
+                    },
+                    {
+                        "name": "value.nightlyRelative",
+                        "type": "FLOAT",
+                        "description": "The user's average temperature during a period of sleep.",
+                    },
+                ],
+            )
+
+        except (Exception) as e:
+            log.error("temp exception occured: %s", str(e))
+
+    
+    stop = timeit.default_timer()
+    execution_time = stop - start
+    print("temp Scope Loaded: " + str(execution_time))
+
+    fitbit_bp.storage.user = None
+
+    return "temp Scope Loaded"

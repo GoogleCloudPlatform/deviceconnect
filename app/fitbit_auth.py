@@ -72,6 +72,7 @@ FITBIT_SCOPES = [
     "social",
     "weight",
     "oxygen_saturation",
+    "temperature"
 ]
 
 firestore_datasetname = os.environ.get("FIRESTORE_DATASET")
