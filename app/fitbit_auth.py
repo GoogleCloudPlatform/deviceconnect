@@ -129,7 +129,7 @@ def device_registration():
             )
 
             if resp.status_code == requests.codes.ok:
-                _export_profile_to_bigquery(username, resp.content)
+                _export_profile_to_bigquery(username, resp.json()['user'])
 
         except (Exception) as e:
             print("error" + e)
@@ -173,18 +173,18 @@ def _export_profile_to_bigquery(id, profile):
 
     profile_df = pd.json_normalize(profile)
     profile_columns = [
-        "user.age",
-        "user.city",
-        "user.state",
-        "user.country",
-        "user.dateOfBirth",
-        "user.displayName",
-        "user.encodedId",
-        "user.fullName",
-        "user.gender",
-        "user.height",
-        "user.heightUnit",
-        "user.timezone",
+        "age",
+        "city",
+        "state",
+        "country",
+        "dateOfBirth",
+        "displayName",
+        "encodedId",
+        "fullName",
+        "gender",
+        "height",
+        "heightUnit",
+        "timezone",
     ]
     profile_df = _normalize_response(profile_df, profile_columns, id)
 

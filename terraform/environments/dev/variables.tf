@@ -77,7 +77,7 @@ variable "web_app_domain" {
 variable "firebase_init" {
   type        = bool
   description = "Whether to initialize Firebase/Firestore."
-  default     = false
+  default     = true
 }
 
 variable "fitbit_oauth_client_id" {
