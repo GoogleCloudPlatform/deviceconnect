@@ -1,7 +1,7 @@
 authlib
 Flask==2.0.1
 Flask-Session
-requests==2.26.0
+requests==2.31.0
 google-auth==2.0.0
 google-auth-oauthlib==0.4.1
 requests-toolbelt==0.9.1
