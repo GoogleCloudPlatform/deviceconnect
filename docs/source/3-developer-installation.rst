@@ -54,7 +54,7 @@ Developer Installation using VSCode
 ===================================
 
 If you use vscode, the provided devcontainer specification
-will install the dpendencies automatically.  See
+will install the dependencies automatically.  See
 `dev containers <https://code.visualstudio.com/docs/remote/containers>`
 
 Devcontainers are supported with vscode.dev and will automatically
